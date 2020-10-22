@@ -34,7 +34,8 @@
               <label>Select date (basic)</label>
               <flat-pickr v-model="form.dateBasic"
                           class="form-control"
-                          :config="configs.basic">
+                          :config="configs.basic"
+                         clear-button>
               </flat-pickr>
             </div>
 

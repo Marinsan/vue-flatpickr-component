@@ -1,4 +1,4 @@
-import Component from './component.js';
+import Component from './component.vue';
 
 const Plugin = (Vue, params) => {
   let name = 'flat-pickr';

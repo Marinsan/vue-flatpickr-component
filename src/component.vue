@@ -1,26 +1,47 @@
-import Flatpickr from 'flatpickr';
-import {excludedEvents, includedEvents} from './events.js';
-import {arrayify, camelToKebab, cloneObject} from './util.js';
+<template>
+  <input
+    type="text"
+    data-input
+    :disabled="disabled"
+    :onInput="onInput"
+    ref="root"
+    class="form-control flatpickr-input"
+  />
+  <i
+    class="clear-button"
+    v-on:click="clearTime()"
+    v-if="clearButton && $refs.root && $refs.root.value.length > 0"
+  >
+    <span
+      ><svg
+        width="1em"
+        height="1em"
+        viewBox="0 0 12 12"
+        class="bi bi-x"
+        fill="currentColor"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"
+        /></svg
+    ></span>
+  </i>
+</template>
+<script>
+import Flatpickr from "flatpickr";
+import { excludedEvents, includedEvents } from "./events.js";
+import { arrayify, camelToKebab, cloneObject } from "./util.js";
 // You have to import css yourself
-import {h, nextTick} from 'vue';
+import { h, nextTick } from "vue";
 
 // Keep a copy of all events for later use
 const allEvents = includedEvents.concat(excludedEvents);
 
 // Passing these properties in `set()` method will cause flatpickr to trigger some callbacks
-const configCallbacks = ['locale', 'showMonths'];
+const configCallbacks = ["locale", "showMonths"];
 
 export default {
-  name: 'flat-pickr',
-  render() {
-    return h('input', {
-      type: 'text',
-      'data-input': true,
-      disabled: this.disabled,
-      onInput: this.onInput,
-      ref: 'root'
-    });
-  },
+  name: "flat-pickr",
   props: {
     modelValue: {
       default: null,
@@ -29,36 +50,40 @@ export default {
         return (
           value === null ||
           value instanceof Date ||
-          typeof value === 'string' ||
+          typeof value === "string" ||
           value instanceof String ||
           value instanceof Array ||
-          typeof value === 'number'
+          typeof value === "number"
         );
-      }
+      },
     },
     // https://chmln.github.io/flatpickr/options/
     config: {
       type: Object,
       default: () => ({
         wrap: false,
-        defaultDate: null
-      })
+        defaultDate: null,
+      }),
     },
     events: {
       type: Array,
-      default: () => includedEvents
+      default: () => includedEvents,
     },
     disabled: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
+    clearButton: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {
       /**
        * The flatpickr instance
        */
-      fp: null
+      fp: null,
     };
   },
   mounted() {
@@ -86,9 +111,11 @@ export default {
     });
 
     const onCloseCb = (...args) => {
-      this.onClose(...args)
+      this.onClose(...args);
     };
-    safeConfig['onClose'] = arrayify(safeConfig['onClose'] || []).concat(onCloseCb)
+    safeConfig["onClose"] = arrayify(safeConfig["onClose"] || []).concat(
+      onCloseCb
+    );
 
     // Set initial date without emitting any event
     safeConfig.defaultDate = this.modelValue || safeConfig.defaultDate;
@@ -97,11 +124,11 @@ export default {
     this.fp = new Flatpickr(this.getElem(), safeConfig);
 
     // Attach blur event
-    this.fpInput().addEventListener('blur', this.onBlur);
+    this.fpInput().addEventListener("blur", this.onBlur);
 
     // Immediate watch will fail before fp is set,
     // so need to start watching after mount
-    this.$watch('disabled', this.watchDisabled, {immediate: true});
+    this.$watch("disabled", this.watchDisabled, { immediate: true });
   },
   methods: {
     /**
@@ -121,7 +148,7 @@ export default {
       const input = event.target;
       // Lets wait for DOM to be updated
       nextTick().then(() => {
-        this.$emit('update:modelValue', input.value);
+        this.$emit("update:modelValue", input.value);
       });
     },
 
@@ -138,14 +165,14 @@ export default {
      * @param event
      */
     onBlur(event) {
-      this.$emit('blur', event.target.value);
+      this.$emit("blur", event.target.value);
     },
 
     /**
      * Flatpickr does not emit input event in some cases
      */
     onClose(selectedDates, dateStr) {
-      this.$emit('update:modelValue', dateStr);
+      this.$emit("update:modelValue", dateStr);
     },
 
     /**
@@ -155,11 +182,20 @@ export default {
      */
     watchDisabled(newState) {
       if (newState) {
-        this.fpInput().setAttribute('disabled', newState);
+        this.fpInput().setAttribute("disabled", newState);
       } else {
-        this.fpInput().removeAttribute('disabled');
+        this.fpInput().removeAttribute("disabled");
       }
-    }
+    },
+
+    /**
+     * Clear the value of v-model when props @clearButton is true
+     */
+    clearTime() {
+      this.fp &&
+        // Notify flatpickr instance that there is a change in value
+        this.fp.setDate(null, true);
+    },
   },
   watch: {
     /**
@@ -182,11 +218,11 @@ export default {
 
         // Workaround: Allow to change locale dynamically
         configCallbacks.forEach((name) => {
-          if (typeof safeConfig[name] !== 'undefined') {
+          if (typeof safeConfig[name] !== "undefined") {
             this.fp.set(name, safeConfig[name]);
           }
         });
-      }
+      },
     },
 
     /**
@@ -199,9 +235,9 @@ export default {
       if (newValue === this.$refs.root.value) return;
       // Make sure we have a flatpickr instance
       this.fp &&
-      // Notify flatpickr instance that there is a change in value
-      this.fp.setDate(newValue, true);
-    }
+        // Notify flatpickr instance that there is a change in value
+        this.fp.setDate(newValue, true);
+    },
   },
   /**
    * Free up memory
@@ -209,9 +245,20 @@ export default {
   beforeUnmount() {
     /* istanbul ignore else */
     if (this.fp) {
-      this.fpInput().removeEventListener('blur', this.onBlur);
+      this.fpInput().removeEventListener("blur", this.onBlur);
       this.fp.destroy();
       this.fp = null;
     }
-  }
+  },
 };
+</script>
+
+<style scoped>
+.clear-button {
+  cursor: pointer;
+  position: absolute;
+  top: 50px;
+  right: 35px;
+  font-size: 1.2rem;
+}
+</style>
