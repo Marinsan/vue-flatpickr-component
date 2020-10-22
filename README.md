@@ -159,10 +159,9 @@ The component accepts these props:
 | Attribute        | Type                                            | Default              | Description      |
 | :---             | :---:                                           | :---:                | :---             |
 | v-model          | String / Date Object / Array / Timestamp / null | `null`               | Set or Get date-picker value (required) |
-| config           | Object                                          | `{ wrap:false }`       | Flatpickr configuration [options](https://flatpickr.js.org/options/)|
-| events           | Array                                           | Array of sensible [events](./src/events.js#L2)  | Customise 
-the [events](https://flatpickr.js.org/events/) to be emitted|
-| clear-button     | Boolean                                         | false                | Customise |
+| config           | Object                                          | `{ wrap:false }`       | Flatpickr configuration [options](https://flatpickr.js.org/options/) |
+| events           | Array                                           | Array of sensible [events](./src/events.js#L2)  | Customise the [events](https://flatpickr.js.org/events/) to be emitted |
+| clear-button     | Boolean                                         | false                |  |
 
 ## Install in non-module environments (without webpack)
 ```html
